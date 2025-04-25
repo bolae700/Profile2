@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pavly's Magic Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #0A1931;
+            --medium-blue: #185ADB;
+            --gradient-start: #000428;
+            --gradient-end: #004e92;
+            --pure-white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark-blue);
+            overflow: hidden;
+        }
+
+        .floating-shapes div {
+            position: fixed;
+            opacity: 0.1;
+            animation: float 8s infinite linear;
+        }
+
+        .float-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--medium-blue);
+        }
+
+        .float-square {
+            width: 60px;
+            height: 60px;
+            background: var(--pure-white);
+            transform: rotate(45deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-40px) rotate(180deg); }
+        }
+
+        .main-app {
+            background: rgba(255, 255, 255, 0.95);
+            width: 95%;
+            max-width: 400px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: auto;
+        }
+
+        .profile-header {
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--medium-blue);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 6px rgba(24, 90, 219, 0.2);
+        }
+
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: var(--medium-blue);
+            border-radius: 0 0 25px 25px;
+        }
+
+        .nav-button {
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            color: var(--pure-white);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .nav-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--pure-white);
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover::after {
+            width: 70%;
+            left: 15%;
+        }
+
+        .nav-button.active {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .content-pane {
+            padding: 1.2rem;
+            min-height: 350px;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: tabSwitch 0.4s ease forwards;
+        }
+
+        @keyframes tabSwitch {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .friend-card {
+            padding: 1rem;
+            background: rgba(24, 90, 219, 0.05);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .friend-card:hover {
+            background: var(--medium-blue);
+            color: var(--pure-white);
+            transform: scale(1.02);
+        }
+
+        .music-interface {
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .control-button {
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--medium-blue), #1144b0);
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(24, 90, 219, 0.3);
+        }
+
+        .control-button:hover {
+            transform: scale(1.15) rotate(8deg);
+            box-shadow: 0 6px 20px rgba(24, 90, 219, 0.5);
+        }
+
+        .progress-container {
+            width: 90%;
+            height: 6px;
+            background: rgba(24, 90, 219, 0.1);
+            margin: 1.5rem auto;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--medium-blue), #1144b0);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(24, 90, 219, 0.1);
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--medium-blue);
+            border-radius: 50%;
+        }
+
+        .status-bar {
+            text-align: center;
+            padding: 0.8rem;
+            color: var(--medium-blue);
+            font-size: 0.95rem;
+        }
+
+        .hearts {
+            animation: heartBeat 0.8s infinite;
+            font-size: 1.4rem;
+            color: var(--medium-blue);
+            filter: drop-shadow(0 0 5px rgba(24, 90, 219, 0.3));
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        .bio-section {
+            margin-top: 1.5rem;
+            text-align: left;
+            padding: 0 1rem;
+        }
+
+        .bio-section p {
+            color: var(--dark-blue);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .song-title {
+            background: rgba(24, 90, 219, 0.1);
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin: 0.8rem 0;
+            border: 2px solid var(--medium-blue);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--dark-blue);
+        }
+
+        .song-title:hover {
+            background: rgba(24, 90, 219, 0.25);
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 480px) {
+            .main-app {
+                width: 100%;
+                border-radius: 20px;
+            }
+            
+            .profile-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .nav-button {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="float-circle" style="top:15%;left:10%"></div>
+        <div class="float-square" style="top:65%;left:80%"></div>
+        <div class="float-circle" style="width:100px;height:100px;top:40%;left:85%"></div>
+    </div>
+
+    <div class="main-app">
+        <div class="profile-header">
+            <div class="avatar-container">
+                <img src="https://i.ibb.co/pXfwCcv/2d79b46de2deb3744fd330d815b76751.jpg" 
+                     class="profile-image" 
+                     alt="Pavly">
+            </div>
+            <h1 style="color: var(--dark-blue);">Pavly Emad</h1>
+            <p style="color: var(--medium-blue); margin-top: 0.5rem; font-size: 0.85rem;">
+                Professional Music Composer • Texas, USA
+            </p>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-button active" data-tab="home">Home</button>
+            <button class="nav-button" data-tab="gallery">Gallery</button>
+            <button class="nav-button" data-tab="friends">Friends</button>
+            <button class="nav-button" data-tab="music">Music</button>
+        </nav>
+
+        <div class="content-pane">
+            <div class="tab-content active" id="home">
+                <h2 style="color: var(--dark-blue); text-align: center; font-size: 1.4rem;">
+                    Welcome to My Studio
+                </h2>
+                <div class="bio-section">
+                    <p>🎵 Professional Composer & Sound Designer</p>
+                    <p>🏆 Winner of 2022 Global Music Awards</p>
+                    <p>🎬 Worked with major film studios</p>
+                    <p>🌍 Based in Texas, working worldwide</p>
+                    <p>🔥 Specializing in cinematic & emotional scores</p>
+                </div>
+            </div>
+
+            <div class="tab-content" id="gallery">
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://i.ibb.co/tBP3YvN/newsa.png" alt="Artwork 1">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://i.ibb.co/MZzSQ20/ss.png" alt="Artwork 2">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://i.ibb.co/Jyq80hX/bfa64e7da2612eb344663aa3fbcf2f59.png" alt="Artwork 3">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://i.ibb.co/CQmsPRJ/Dream-Shaper-v7-cool-fashion-boy-3d-cartoon-modern-1.png" alt="Artwork 4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="friends">
+                <div class="friends-grid">
+                    <div class="friend-card">Leader</div>
+                    <div class="friend-card">Dolly</div>
+                    <div class="friend-card">Mark</div>
+                    <div class="friend-card">Ramiz</div>
+                    <div class="friend-card">Karim</div>
+                    <div class="friend-card">Virus</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="music">
+                <div class="music-interface">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress"></div>
+                    </div>
+                    
+                    <div class="player-controls">
+                        <button class="control-button" id="prev">⏮</button>
+                        <button class="control-button" id="play">▶</button>
+                        <button class="control-button" id="next">⏭</button>
+                        <button class="control-button" id="mute">🔊</button>
+                    </div>
+
+                    <div class="volume-control">
+                        <input type="range" class="volume-slider" id="volume" min="0" max="1" step="0.1" value="1">
+                    </div>
+
+                    <div class="song-list">
+                        <div class="song-title" data-src="https://github.com/bolae700/Songs/blob/main/1.MP3?raw=true">Aşkın Külleri</div>
+                        <div class="song-title" data-src="https://github.com/bolae700/Songs/blob/main/2.MP3?raw=true">Gökyüzünde Sen</div>
+                        <div class="song-title" data-src="https://github.com/bolae700/Songs/blob/main/3.MP3?raw=true">Yanan Kalem</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span class="hearts">💙</span>
+            GOD IS LOVE
+            <span class="hearts">💙</span>
+        </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    <script>
+        const SoundManager = {
+            sounds: {
+                click: null,
+                hover: null,
+                switch: null
+            },
+            
+            init: () => {
+                SoundManager.sounds.click = new Howl({
+                    src: ['https://cdn.freesound.org/previews/685/685847_1648170-lq.mp3']
+                });
+                SoundManager.sounds.hover = new Howl({
+                    src: ['https://cdn.freesound.org/previews/256/256293_4393543-lq.mp3']
+                });
+                SoundManager.sounds.switch = new Howl({
+                    src: ['https://cdn.freesound.org/previews/675/675594_1648170-lq.mp3']
+                });
+            },
+            
+            play: (soundName) => {
+                if (SoundManager.sounds[soundName]) {
+                    SoundManager.sounds[soundName].play();
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', SoundManager.init);
+
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => SoundManager.play('hover'));
+            
+            btn.addEventListener('click', function() {
+                SoundManager.play('click');
+                
+                document.querySelectorAll('.tab-content, .nav-button').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                document.getElementById(this.dataset.tab).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+
+        const player = document.getElementById('audio-player');
+        const progress = document.getElementById('progress');
+        const volumeSlider = document.getElementById('volume');
+        const muteBtn = document.getElementById('mute');
+        const playBtn = document.getElementById('play');
+        const songs = document.querySelectorAll('.song-title');
+        let currentTrack = 0;
+
+        player.addEventListener('timeupdate', () => {
+            const progressPercent = (player.currentTime / player.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            player.volume = e.target.value;
+        });
+
+        muteBtn.addEventListener('click', () => {
+            player.muted = !player.muted;
+            muteBtn.textContent = player.muted ? '🔇' : '🔊';
+        });
+
+        playBtn.addEventListener('click', togglePlay);
+        document.getElementById('next').addEventListener('click', nextTrack);
+        document.getElementById('prev').addEventListener('click', prevTrack);
+
+        songs.forEach((song, index) => {
+            song.addEventListener('click', () => {
+                currentTrack = index;
+                loadTrack(currentTrack);
+                SoundManager.play('switch');
+            });
+        });
+
+        function togglePlay() {
+            if (player.paused) {
+                player.play().then(() => {
+                    playBtn.textContent = '⏸';
+                    SoundManager.play('switch');
+                });
+            } else {
+                player.pause();
+                playBtn.textContent = '▶';
+            }
+        }
+
+        function loadTrack(index) {
+            player.src = songs[index].dataset.src;
+            songs.forEach(s => s.classList.remove('active'));
+            songs[index].classList.add('active');
+            player.play().catch(() => playBtn.textContent = '▶');
+        }
+
+        function nextTrack() {
+            currentTrack = (currentTrack + 1) % songs.length;
+            loadTrack(currentTrack);
+        }
+
+        function prevTrack() {
+            currentTrack = (currentTrack - 1 + songs.length) % songs.length;
+            loadTrack(currentTrack);
+        }
+
+        loadTrack(0);
+    </script>
+</body>
+</html>
